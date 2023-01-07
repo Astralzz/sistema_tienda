@@ -9,6 +9,11 @@ import PageLogin from "../pages/login/PageLogin";
 
 // Obtener pagina
 const PaginaEscogida = ({ titulo, sesion, setSesion }) => {
+  //Si no se a iniciado sesion
+  if (!sesion.isSesionIniciada) {
+    return <Navigate to="/acceder" />;
+  }
+
   // Escogemos
   switch (titulo) {
     // Inicio

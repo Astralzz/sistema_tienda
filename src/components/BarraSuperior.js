@@ -140,7 +140,7 @@ const BarraSuperior = ({ titulo, sesion }) => {
             <ul className="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
               {enlaces.map((elemento, i) => {
                 //Oculto
-                if (elemento.ocultar) {
+                if (elemento.ocultar || !sesion.isSesionIniciada) {
                   return;
                 }
 
