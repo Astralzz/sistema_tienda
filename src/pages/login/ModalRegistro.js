@@ -3,7 +3,17 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
-import { EyeFill } from "react-bootstrap-icons";
+import Image from "react-bootstrap/Image";
+import FondoAvatar from "../../img/avatarUser.png";
+import {
+  PersonFill,
+  TelephoneFill,
+  EnvelopeAtFill,
+  EyeFill,
+  EyeSlashFill,
+} from "react-bootstrap-icons";
+
+let errorMensaje = null;
 
 // Registro
 const ModalRegistro = ({ estadoModal, cerrarModal }) => {
@@ -16,9 +26,22 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
   const [apellidoPa, setApellidoPa] = useState("");
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
+  const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
+  const [imagen, setImagen] = useState(null);
+  const [gerente, isGerente] = useState(false);
+  const [claveAdmin, setClaveAdmin] = useState("");
+
+  //Ocultar la contraseña
+  const [passOculta, setPassOculta] = useState(true);
 
   // Error
-  const [error, setError] = useState("");
+  const setErrorMensaje = (e) => {
+    errorMensaje = e;
+  };
+
+  // Referencia imagen
+  const refImagenRegistro = useRef(null);
 
   // Limpiar
   const limpiarDatos = () => {
@@ -27,6 +50,17 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
     setApellidoMa("");
     setEmail("");
     setTelefono("");
+    setPassword("");
+    setPassword2("");
+    isGerente(false);
+    setPassOculta(true);
+    setErrorMensaje(null);
+    setImagen(null);
+    setClaveAdmin("");
+
+    if (refImagenRegistro.current) {
+      refImagenRegistro.current.value = "";
+    }
   };
 
   // Registrar usuario
@@ -36,31 +70,90 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
 
   // Validar imagen
   const validarImagen = (e) => {
-    // Obtenemos el archivo seleccionado
-    const file = e.target.files[0];
+    // Existe
+    if (e.target.files[0]) {
+      // Tine mas de 0
+      if (e.target.files.length > 0) {
+        // Obtenemos el archivo seleccionado
+        const file = e.target.files[0];
 
-    // Validamos el tipo de archivo (debe ser una imagen)
-    if (!file.type.startsWith("image/")) {
-      // Mostramos un mensaje de error
-      setError("Por favor selecciona una imagen");
-      return;
+        // Validamos el tipo de archivo (debe ser una imagen)
+        if (!file.type.startsWith("image/")) {
+          // Mostramos un mensaje de error
+          setErrorMensaje("Por favor selecciona una imagen");
+          setImagen(null);
+          return;
+        }
+
+        // Validamos el tamaño del archivo (debe ser menor a 2 MB)
+        if (file.size > 2097152) {
+          // Mostramos un mensaje de error
+          setErrorMensaje("El tamaño de la imagen debe ser menor a 2 MB");
+          setImagen(null);
+          return;
+        }
+
+        // Si el archivo cumple con los requisitos,
+        setErrorMensaje(null);
+        //Ponemos ruta
+        setImagen(URL.createObjectURL(file));
+        return;
+        //podemos hacer algo con él (por ejemplo, subirlo a un servidor)
+      }
+    }
+    setImagen(null);
+  };
+
+  // Validar usuario
+  const validarDatos = () => {
+    //Nombre
+    const nombreRegex = /^[a-zA-Z]{2,15}(\s[a-zA-Z]{2,15})?$/;
+    if (!nombreRegex.test(nombre)) {
+      setErrorMensaje("Nombre invalido");
+      return false;
     }
 
-    // Validamos el tamaño del archivo (debe ser menor a 2 MB)
-    if (file.size > 2097152) {
-      // Mostramos un mensaje de error
-      setError("El tamaño de la imagen debe ser menor a 2 MB");
-      return;
+    //Apellido p
+    const apellidoRegex = /^[a-zA-Z]{2,25}$/;
+    if (!apellidoRegex.test(apellidoPa)) {
+      setErrorMensaje("Apellido paterno inválido");
+      return false;
     }
 
-    // Si el archivo cumple con los requisitos,
-    //podemos hacer algo con él (por ejemplo, subirlo a un servidor)
+    //Apellido m
+    if (!apellidoRegex.test(apellidoMa)) {
+      setErrorMensaje("Apellido materno inválido");
+      return false;
+    }
+
+    // Email
+    const emailRegex = /^[\w\.\+\-]+@[\w]+\.[a-z]{2,3}$/;
+    if (!emailRegex.test(email)) {
+      setErrorMensaje("Email inválido");
+      return false;
+    }
+
+    // Telefono
+    const telefonoRegex = /^\d{10}$/;
+    if (!telefonoRegex.test(telefono)) {
+      setErrorMensaje("Numero de telefono inválido");
+      return false;
+    }
+
+    //Éxito
+    setErrorMensaje(null);
+    return true;
   };
 
   // Vemos estado
   useEffect(() => {
     limpiarDatos();
   }, [estadoModal]);
+
+  //Icono
+  const IconoEye = () => {
+    return passOculta ? <EyeSlashFill /> : <EyeFill />;
+  };
 
   return (
     <Modal show={estadoModal} onHide={cerrarModal}>
@@ -76,7 +169,9 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
         <Modal.Body>
           {/* Nombre y apellidos */}
           <InputGroup className="mb-3">
-            <InputGroup.Text id="areaNombre">@</InputGroup.Text>
+            <InputGroup.Text id="areaNombre">
+              <PersonFill />
+            </InputGroup.Text>
             <Form.Control
               placeholder="nombre(s)"
               value={nombre}
@@ -84,28 +179,39 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
               name="nombre"
               aria-label="Username"
               aria-describedby="areaNombre"
+              type="text"
+              maxLength={25}
+              minLength={2}
             />
             <Form.Control
               placeholder="apellido paterno"
               value={apellidoPa}
               onChange={(e) => setApellidoPa(e.target.value)}
               name="apellido_pa"
-              aria-label="Username"
+              aria-label="apellido p"
               aria-describedby="areaNombre"
+              type="text"
+              maxLength={25}
+              minLength={2}
             />
             <Form.Control
               placeholder="apellido materno"
               value={apellidoMa}
               onChange={(e) => setApellidoMa(e.target.value)}
               name="apellido_ma"
-              aria-label="Username"
+              aria-label="apellido m"
               aria-describedby="areaNombre"
+              type="text"
+              maxLength={25}
+              minLength={2}
             />
           </InputGroup>
           {/* Email y telefono */}
           <InputGroup className="mb-3">
             {/* Email */}
-            <InputGroup.Text id="areaEmail">@</InputGroup.Text>
+            <InputGroup.Text id="areaEmail">
+              <EnvelopeAtFill />
+            </InputGroup.Text>
             <Form.Control
               placeholder="email"
               value={email}
@@ -119,7 +225,7 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
             />
             {/* Telefono */}
             <InputGroup.Text id="areaTelefono">
-              <EyeFill/>
+              <TelephoneFill />
             </InputGroup.Text>
             <Form.Control
               placeholder="telefono"
@@ -135,25 +241,92 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
           </InputGroup>
           {/* Imagen */}
           <Form.Group controlId="formFile" className="mb-3">
-            <Form.Control
-              name="imagen"
-              type="file"
-              accept="image/*"
-              size={2097152}
-              label="Seleccionar Imagen"
-              onChange={validarImagen}
-            />
+            <InputGroup>
+              <InputGroup.Text id="areaImagen">
+                <Image
+                  src={imagen === null ? FondoAvatar : imagen}
+                  roundedCircle
+                  height={23}
+                />
+              </InputGroup.Text>
+              <Form.Control
+                name="imagen"
+                type="file"
+                accept="image/*"
+                size={35}
+                label="Seleccionar Imagen"
+                aria-describedby="areaImagen"
+                ref={refImagenRegistro}
+                onChange={validarImagen}
+              />
+            </InputGroup>
           </Form.Group>
+
+          {/* Contraseña */}
+          <InputGroup className="mb-3">
+            <InputGroup.Text
+              type="button"
+              onClick={() => setPassOculta(!passOculta)}
+              id="areaPass"
+            >
+              <IconoEye />
+            </InputGroup.Text>
+            <Form.Control
+              placeholder="contraseña"
+              name="password"
+              aria-describedby="areaPass"
+              value={password}
+              type={passOculta ? "password" : "text"}
+              onChange={(e) => setPassword(e.target.value)}
+              aria-label="password"
+            />
+            <Form.Control
+              placeholder="repetir"
+              type="password"
+              aria-describedby="areaPass"
+              value={password2}
+              onChange={(e) => setPassword2(e.target.value)}
+              aria-label="password2"
+            />
+          </InputGroup>
+
+          {/* Es gerente */}
+          <InputGroup className="mb-3">
+            <InputGroup.Checkbox
+              name="isGerente"
+              id="areaAdministrador"
+              aria-label="Checkbox for following text input"
+              onChange={(e) => isGerente(e.target.checked)}
+            />
+            <Form.Control
+              name="claveAdmin"
+              aria-label="es gerente"
+              placeholder={
+                gerente
+                  ? "Clave de administrador"
+                  : "Marca si eres administrador"
+              }
+              aria-describedby="areaAdministrador"
+              value={claveAdmin}
+              onChange={(e) => setClaveAdmin(e.target.value)}
+              disabled={!gerente}
+            />
+          </InputGroup>
         </Modal.Body>
 
         {/* Pie de pagina */}
         <Modal.Footer>
+          {/* Texto de error */}
+          <p hidden={errorMensaje === null} className="text-danger">
+            {errorMensaje + "    "}
+          </p>
+
           {/* Boton cerrar */}
           <Button variant="secondary" type="button" onClick={cerrarModal}>
             Cancelar
           </Button>
           {/* Boton Aceptar */}
-          <Button variant="dark" type="submit">
+          <Button variant="dark" type="submit" disabled={!validarDatos()}>
             Registrar usuario
           </Button>
         </Modal.Footer>
