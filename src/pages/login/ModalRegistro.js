@@ -5,6 +5,7 @@ import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import Image from "react-bootstrap/Image";
 import FondoAvatar from "../../img/avatarUser.png";
+import Swal from "sweetalert2";
 import {
   PersonFill,
   TelephoneFill,
@@ -12,6 +13,7 @@ import {
   EyeFill,
   EyeSlashFill,
 } from "react-bootstrap-icons";
+import { crearUsuario, verificarKeyAdmin } from "../../apis/apiUsuario";
 
 let errorMensaje = null;
 
@@ -28,7 +30,8 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
   const [telefono, setTelefono] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
-  const [imagen, setImagen] = useState(null);
+  const [rutaImagen, setRutaImagen] = useState(null);
+  const [img, setImg] = useState(null);
   const [gerente, isGerente] = useState(false);
   const [claveAdmin, setClaveAdmin] = useState("");
 
@@ -55,7 +58,7 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
     isGerente(false);
     setPassOculta(true);
     setErrorMensaje(null);
-    setImagen(null);
+    setRutaImagen(null);
     setClaveAdmin("");
 
     if (refImagenRegistro.current) {
@@ -64,8 +67,82 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
   };
 
   // Registrar usuario
-  const registrarUsuario = () => {
-    alert("Exito");
+  const prepararRegistro = async (event) => {
+    event.preventDefault();
+    //Obtenemos datos
+    const formData = new FormData(refFormularioRegistro.current);
+
+    //Cambiamos
+    formData.set("isGerente", gerente);
+
+    //Imagen
+    if (rutaImagen === null) {
+      //Eliminamos campo img
+      formData.delete("imagen");
+    }
+
+    //Si es admin
+    if (gerente) {
+      await validarClave(claveAdmin, formData);
+      return;
+    }
+
+    await registrar(formData);
+  };
+
+  // Validar clave
+  const validarClave = async (key, usuario) => {
+    //Verificamos
+    const res = await verificarKeyAdmin(key);
+
+    //Error
+    if (res === undefined) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Ocurrió un error desconocido!",
+      });
+      return;
+    }
+
+    // Validamos
+    if (res) {
+      //Eliminamos key
+      usuario.delete("key");
+      await registrar(usuario);
+      return;
+    }
+
+    //Fracaso
+    Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "La clave es incorrecta!",
+    });
+  };
+
+  // Registrar
+  const registrar = async (usuario) => {
+    usuario.forEach((element, key) => {
+      console.log(key + " -> " + element);
+    });
+
+    //Verificamos
+    const res = await crearUsuario(usuario);
+
+    // Validamos
+    if (res) {
+      //Damos respuesta
+      Swal.fire("Éxito!", "El usuario se registro correctamente!", "success");
+      return;
+    }
+
+    //Fracaso
+    Swal.fire({
+      icon: "error",
+      title: "Error...",
+      text: "No se registro el usuario!",
+    });
   };
 
   // Validar imagen
@@ -81,7 +158,8 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
         if (!file.type.startsWith("image/")) {
           // Mostramos un mensaje de error
           setErrorMensaje("Por favor selecciona una imagen");
-          setImagen(null);
+          setRutaImagen(null);
+          setImg(null);
           return;
         }
 
@@ -89,19 +167,21 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
         if (file.size > 2097152) {
           // Mostramos un mensaje de error
           setErrorMensaje("El tamaño de la imagen debe ser menor a 2 MB");
-          setImagen(null);
+          setRutaImagen(null);
+          setImg(null);
           return;
         }
 
         // Si el archivo cumple con los requisitos,
         setErrorMensaje(null);
         //Ponemos ruta
-        setImagen(URL.createObjectURL(file));
+        setImg(file);
+        setRutaImagen(URL.createObjectURL(file));
         return;
         //podemos hacer algo con él (por ejemplo, subirlo a un servidor)
       }
     }
-    setImagen(null);
+    setRutaImagen(null);
   };
 
   // Validar usuario
@@ -140,6 +220,27 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
       return false;
     }
 
+    // Contraseña
+    const passwordRegex = /^\S{6,18}$/;
+    if (!passwordRegex.test(password)) {
+      setErrorMensaje("Contraseña inválida");
+      return false;
+    }
+
+    // Contraseña 2
+    if (password !== password2) {
+      setErrorMensaje("Las contraseñas no coinciden");
+      return false;
+    }
+
+    // Key
+    if (gerente) {
+      if (claveAdmin.length !== 12) {
+        setErrorMensaje("Clave invalida");
+        return false;
+      }
+    }
+
     //Éxito
     setErrorMensaje(null);
     return true;
@@ -164,7 +265,12 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
       </Modal.Header>
 
       {/* Formulario */}
-      <Form ref={refFormularioRegistro} onSubmit={registrarUsuario}>
+      <Form
+        encType="multipart/form-data"
+        method="post"
+        ref={refFormularioRegistro}
+        onSubmit={prepararRegistro}
+      >
         {/* Cuerpo */}
         <Modal.Body>
           {/* Nombre y apellidos */}
@@ -180,14 +286,14 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
               aria-label="Username"
               aria-describedby="areaNombre"
               type="text"
-              maxLength={25}
+              maxLength={28}
               minLength={2}
             />
             <Form.Control
               placeholder="apellido paterno"
               value={apellidoPa}
               onChange={(e) => setApellidoPa(e.target.value)}
-              name="apellido_pa"
+              name="apellido_p"
               aria-label="apellido p"
               aria-describedby="areaNombre"
               type="text"
@@ -198,7 +304,7 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
               placeholder="apellido materno"
               value={apellidoMa}
               onChange={(e) => setApellidoMa(e.target.value)}
-              name="apellido_ma"
+              name="apellido_m"
               aria-label="apellido m"
               aria-describedby="areaNombre"
               type="text"
@@ -233,7 +339,6 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
               onChange={(e) => setTelefono(e.target.value)}
               name="telefono"
               type="number"
-              minLength={10}
               maxLength={10}
               aria-label="telefono"
               aria-describedby="areaTelefono"
@@ -244,7 +349,7 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
             <InputGroup>
               <InputGroup.Text id="areaImagen">
                 <Image
-                  src={imagen === null ? FondoAvatar : imagen}
+                  src={rutaImagen === null ? FondoAvatar : rutaImagen}
                   roundedCircle
                   height={23}
                 />
@@ -276,6 +381,8 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
               name="password"
               aria-describedby="areaPass"
               value={password}
+              minLength={6}
+              maxLength={18}
               type={passOculta ? "password" : "text"}
               onChange={(e) => setPassword(e.target.value)}
               aria-label="password"
@@ -285,6 +392,8 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
               type="password"
               aria-describedby="areaPass"
               value={password2}
+              minLength={6}
+              maxLength={18}
               onChange={(e) => setPassword2(e.target.value)}
               aria-label="password2"
             />
@@ -296,11 +405,16 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
               name="isGerente"
               id="areaAdministrador"
               aria-label="Checkbox for following text input"
-              onChange={(e) => isGerente(e.target.checked)}
+              onChange={(e) => {
+                setClaveAdmin("");
+                isGerente(e.target.checked);
+              }}
             />
             <Form.Control
-              name="claveAdmin"
+              name="key"
               aria-label="es gerente"
+              type="password"
+              maxLength={12}
               placeholder={
                 gerente
                   ? "Clave de administrador"
