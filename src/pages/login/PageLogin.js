@@ -1,15 +1,20 @@
 import React, { useRef, useState } from "react";
 import { Form, InputGroup, Button, Container } from "react-bootstrap";
 import { Eye, EyeSlash } from "react-bootstrap-icons";
-import axios from "axios";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import fondoLogin from "../../img/fondoLogin.jpg";
 import ModalRegistro from "./ModalRegistro";
+import { iniciarSesionUsuario, obtenerUsuario } from "../../apis/apiUsuario";
 
 //Rutas
-const PageLogin = () => {
+const PageLogin = ({ setSesion }) => {
   // Referencia
   const refFormularioSesion = useRef(null);
+
+  //Ruta
+  const navigate = useNavigate();
 
   // Modal
   const [estadoModal, isEstadoModal] = useState(false);
@@ -18,18 +23,89 @@ const PageLogin = () => {
 
   // Variables
   const [passOculta, setPassOculta] = useState(true);
-  const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // Obtener datos
+  const obtenerDatos = async (email) => {
+    //Verificamos
+    const res = await obtenerUsuario(email);
+
+    // Error
+    if (res === undefined || res === []) {
+      //Fracaso
+      Swal.fire({
+        icon: "error",
+        title: "Error...",
+        text: "Error desconocido, intenta mas tarde",
+      });
+      return;
+    }
+
+    //Iniciamos sesion
+    setSesion({
+      nombre: res.nombre,
+      apellidos: res.apellidos,
+      telefono: res.telefono,
+      email: res.email,
+      isSesionIniciada: true,
+      isGerente: res.isGerente === 1,
+      imagen: res.imagen,
+    });
+
+    //Limpiamos
+    setEmail("");
+    setPassword("");
+    setPassOculta(true);
+
+    //Cambiamos ruta
+    navigate("/");
+  };
+
   // Iniciar sesión
-  const iniciarSesion = () => {
-    alert("exito");
+  const iniciarSesion = async (event) => {
+    event.preventDefault();
+    //Obtenemos datos
+    const formData = new FormData(refFormularioSesion.current);
+
+    // formData.forEach((element, key) => {
+    //   console.log(key + " -> " + element);
+    // });
+
+    //Verificamos
+    const res = await iniciarSesionUsuario(formData);
+
+    // Validamos
+    if (res) {
+      //Damos respuesta
+      await obtenerDatos(email);
+      return;
+    }
+
+    //Fracaso
+    Swal.fire({
+      icon: "error",
+      title: "Error...",
+      text: "Datos incorrectos!",
+    });
   };
 
   // Verificar datos
   const verificarDatos = () => {
+    // Email
+    const emailRegex = /^[\w\.\+\-]+@[\w]+\.[a-z]{2,3}$/;
+    if (!emailRegex.test(email)) {
+      return true;
+    }
+
+    // Contraseña
+    const passwordRegex = /^\S{6,18}$/;
+    if (!passwordRegex.test(password)) {
+      return true;
+    }
+
     // Bloquear
-    return true;
+    return false;
   };
 
   //Icono
@@ -74,18 +150,19 @@ const PageLogin = () => {
                             <span className="h1 fw-bold mb-0">Acceder</span>
                           </div>
 
-                          {/* Nombre de usuario */}
+                          {/* Email del usuario */}
                           <div className="form-group mt-3">
                             <Form.Group controlId="formUsername">
                               <Form.Label>Correo electrónico</Form.Label>
                               <Form.Control
                                 type="email"
-                                name="correo"
-                                value={nombre}
-                                onChange={(e) => setNombre(e.target.value)}
+                                placeholder="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 required
-                                minLength={4}
-                                maxLength={16}
+                                name="email"
+                                minLength={5}
+                                maxLength={35}
                               />
                             </Form.Group>
                           </div>
@@ -97,11 +174,13 @@ const PageLogin = () => {
                               <InputGroup>
                                 <Form.Control
                                   type={passOculta ? "password" : "text"}
-                                  name="password"
                                   value={password}
                                   onChange={(e) => setPassword(e.target.value)}
-                                  minLength={4}
-                                  maxLength={12}
+                                  placeholder="contraseña"
+                                  name="password"
+                                  aria-describedby="areaPass"
+                                  minLength={6}
+                                  maxLength={18}
                                   required
                                 />
                                 <Button
@@ -120,7 +199,6 @@ const PageLogin = () => {
                               type="submit"
                               className="btn btn-dark btn-lg btn-block"
                               disabled={verificarDatos()}
-                              onClick={() => iniciarSesion()}
                             >
                               Acceder
                             </Button>

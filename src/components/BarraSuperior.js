@@ -9,7 +9,9 @@ import {
   CartFill,
   PersonCircle,
 } from "react-bootstrap-icons";
-import { Dropdown } from "react-bootstrap";
+import { Button, Dropdown } from "react-bootstrap";
+import Image from "react-bootstrap/Image";
+import { API_URL } from "../apis/variables";
 
 // Clase
 class enlace {
@@ -22,94 +24,120 @@ class enlace {
   }
 }
 
-// Acceder
-const ParteDeSesion = ({ sesion, titulo }) => {
-  //Sesión no iniciada
-  if (!sesion.isSesionIniciada) {
-    //Acceder
-    const Sesion = new enlace("Acceder", "/acceder", PersonCircle);
-
-    return (
-      <li
-        className={
-          Sesion.url.replace(/^\//, "") === titulo
-            ? "nav-link text-secondary"
-            : "nav-link text-white"
-        }
-      >
-        <Link
-          to={Sesion.url}
-          className={
-            "d-flex align-items-center my-2 my-lg-0 me-lg-auto " +
-            (Sesion.url.replace(/^\//, "") === titulo
-              ? "text-secondary"
-              : "text-white") +
-            " text-decoration-none"
-          }
-        >
-          {/* Icono */}
-          <Sesion.icono
-            className="bi d-block mx-auto mb-1"
-            width="24"
-            height="24"
-          />
-        </Link>
-        {Sesion.titulo}
-      </li>
-    );
-  }
-
-  // li = nav-item dropdown
-
-  //Sesion iniciada
-  return (
-    <Dropdown>
-      <Dropdown.Toggle variant="dark" id="idPerfil">
-        {/* Icono */}
-        <PersonCircle
-          className="bi d-block mx-auto mb-1"
-          width="24"
-          height="24"
-        />
-        {sesion.nombre !== null ? sesion.nombre : "????"}
-      </Dropdown.Toggle>
-
-      {/* Menu */}
-      <Dropdown.Menu>
-        {/* Perfil */}
-        <Dropdown.Item>
-          <Link className={"dropdown-item"} to={"/inicio"}>
-            Perfil
-          </Link>
-        </Dropdown.Item>
-        {/* Ajustes */}
-        <Dropdown.Item>
-          <Link className={"dropdown-item"} to={"/inicio"}>
-            Ajustes
-          </Link>
-        </Dropdown.Item>
-        <Dropdown.Divider></Dropdown.Divider>
-        {/* Cerrar Sesión */}
-        <Dropdown.Item>
-          <Link className={"dropdown-item"} to={"/inicio"}>
-            Cerrar Sesion
-          </Link>
-        </Dropdown.Item>
-      </Dropdown.Menu>
-    </Dropdown>
-  );
-};
-
 // Barra
-const BarraSuperior = ({ titulo, sesion }) => {
+const BarraSuperior = ({ titulo, sesion, setSesion }) => {
   // Enlaces
   const enlaces = [
     new enlace("Articulos", "/articulos", ListTask),
-    new enlace("Clientes", "/clientes", PeopleFill),
     new enlace("Proveedores", "/proveedores", Box2Fill),
     new enlace("Ventas", "/ventas", CartFill),
-    new enlace("Empleados", "/empleados", PersonVcardFill, !sesion.isAdmin),
+    new enlace("Empleados", "/empleados", PersonVcardFill, !sesion.isGerente),
   ];
+
+  // Cerrar sesion
+  const cerrarSesion = () => {
+    setSesion({
+      nombre: null,
+      apellidos: null,
+      telefono: null,
+      email: null,
+      isSesionIniciada: false,
+      isGerente: null,
+      imagen: null,
+    });
+  };
+
+  // Imagen
+  const ImageAvatar = () => {
+    return sesion.isSesionIniciada && sesion.imagen !== null ? (
+      <Image
+        className="bi d-block mx-auto mb-1"
+        height={24}
+        src={API_URL + sesion.imagen}
+        rounded
+        roundedCircle
+      />
+    ) : (
+      <PersonCircle
+        className="bi d-block mx-auto mb-1"
+        width="24"
+        height="24"
+      />
+    );
+  };
+
+  // Acceder
+  const ParteDeSesion = ({ sesion, titulo }) => {
+    //Sesión no iniciada
+    if (!sesion.isSesionIniciada) {
+      //Acceder
+      const NoSesion = new enlace("Acceder", "/acceder", PersonCircle);
+
+      return (
+        <li
+          className={
+            NoSesion.url.replace(/^\//, "") === titulo
+              ? "nav-link text-secondary"
+              : "nav-link text-white"
+          }
+        >
+          <Link
+            to={NoSesion.url}
+            className={
+              "d-flex align-items-center my-2 my-lg-0 me-lg-auto " +
+              (NoSesion.url.replace(/^\//, "") === titulo
+                ? "text-secondary"
+                : "text-white") +
+              " text-decoration-none"
+            }
+          >
+            {/* Icono */}
+            <NoSesion.icono
+              className="bi d-block mx-auto mb-1"
+              width="24"
+              height="24"
+            />
+          </Link>
+          {NoSesion.titulo}
+        </li>
+      );
+    }
+
+    //Sesion iniciada
+    return (
+      <Dropdown>
+        <Dropdown.Toggle variant="dark" id="idPerfil">
+          {/* Icono */}
+          <ImageAvatar />
+
+          {sesion.nombre !== null ? sesion.nombre : "????"}
+        </Dropdown.Toggle>
+
+        {/* Menu */}
+        <Dropdown.Menu>
+          {/* Perfil */}
+          <Dropdown.Item>
+            <Link className={"dropdown-item"} to={"/perfil"}>
+              Perfil
+            </Link>
+          </Dropdown.Item>
+          {/* Ajustes */}
+          <Dropdown.Item>
+            <Link className={"dropdown-item"} to={"/inicio"}>
+              Ajustes
+            </Link>
+          </Dropdown.Item>
+          <Dropdown.Divider></Dropdown.Divider>
+          {/* Cerrar Sesión */}
+          <Dropdown.Item>
+            <span className={"dropdown-item"} onClick={() => cerrarSesion()}>
+              Cerrar Sesion
+            </span>
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
+    );
+  };
 
   // Barra
   return (

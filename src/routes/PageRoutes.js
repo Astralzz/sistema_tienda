@@ -8,9 +8,12 @@ const PageRoutes = () => {
   //Sesion
   const [sesion, setSesion] = useState({
     nombre: null,
-    correo: null,
+    apellidos: null,
+    telefono: null,
+    email: null,
     isSesionIniciada: false,
-    isAdmin: false,
+    isGerente: null,
+    imagen: null,
   });
 
   //Retornamos

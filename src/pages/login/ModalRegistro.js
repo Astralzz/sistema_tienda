@@ -13,7 +13,11 @@ import {
   EyeFill,
   EyeSlashFill,
 } from "react-bootstrap-icons";
-import { crearUsuario, verificarKeyAdmin } from "../../apis/apiUsuario";
+import {
+  buscarEmailUsuario,
+  crearUsuario,
+  verificarKeyAdmin,
+} from "../../apis/apiUsuario";
 
 let errorMensaje = null;
 
@@ -31,9 +35,9 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [rutaImagen, setRutaImagen] = useState(null);
-  const [img, setImg] = useState(null);
   const [gerente, isGerente] = useState(false);
   const [claveAdmin, setClaveAdmin] = useState("");
+  const [emailRepetido, setEmailRepetido] = useState(null);
 
   //Ocultar la contraseña
   const [passOculta, setPassOculta] = useState(true);
@@ -123,10 +127,6 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
 
   // Registrar
   const registrar = async (usuario) => {
-    usuario.forEach((element, key) => {
-      console.log(key + " -> " + element);
-    });
-
     //Verificamos
     const res = await crearUsuario(usuario);
 
@@ -134,6 +134,7 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
     if (res) {
       //Damos respuesta
       Swal.fire("Éxito!", "El usuario se registro correctamente!", "success");
+      cerrarModal();
       return;
     }
 
@@ -159,7 +160,6 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
           // Mostramos un mensaje de error
           setErrorMensaje("Por favor selecciona una imagen");
           setRutaImagen(null);
-          setImg(null);
           return;
         }
 
@@ -168,14 +168,12 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
           // Mostramos un mensaje de error
           setErrorMensaje("El tamaño de la imagen debe ser menor a 2 MB");
           setRutaImagen(null);
-          setImg(null);
           return;
         }
 
         // Si el archivo cumple con los requisitos,
         setErrorMensaje(null);
         //Ponemos ruta
-        setImg(file);
         setRutaImagen(URL.createObjectURL(file));
         return;
         //podemos hacer algo con él (por ejemplo, subirlo a un servidor)
@@ -213,6 +211,17 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
       return false;
     }
 
+    //Buscar email
+    if (emailRepetido === null) {
+      setErrorMensaje("Error al buscar el email");
+      return false;
+    }
+
+    if (emailRepetido) {
+      setErrorMensaje("Email en uso");
+      return false;
+    }
+
     // Telefono
     const telefonoRegex = /^\d{10}$/;
     if (!telefonoRegex.test(telefono)) {
@@ -244,6 +253,35 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
     //Éxito
     setErrorMensaje(null);
     return true;
+  };
+
+  // Buscar usuario
+  const buscarEmail = async (event) => {
+    //Actualizamos
+    const datoBuscar = event.target.value;
+    //Ponemos
+    setEmail(datoBuscar);
+
+    //Validamos
+    const emailRegex = /^[\w\.\+\-]+@[\w]+\.[a-z]{2,3}$/;
+    if (emailRegex.test(datoBuscar)) {
+      //Verificamos
+      const res = await buscarEmailUsuario(datoBuscar);
+
+      //Error
+      if (res === undefined) {
+        setEmailRepetido(null);
+        return;
+      }
+
+      // Validamos
+      if (res) {
+        setEmailRepetido(true);
+        return;
+      }
+    }
+
+    setEmailRepetido(false);
   };
 
   // Vemos estado
@@ -321,7 +359,7 @@ const ModalRegistro = ({ estadoModal, cerrarModal }) => {
             <Form.Control
               placeholder="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={buscarEmail}
               name="email"
               type="email"
               minLength={5}

@@ -6,6 +6,7 @@ import PageVentas from "../pages/ventas/PageVentas";
 import PieDePagina from "../components/PieDePagina";
 import BarraSuperior from "../components/BarraSuperior";
 import PageLogin from "../pages/login/PageLogin";
+import PageUsuarios from "../pages/usuarios/PageUsuarios";
 
 // Obtener pagina
 const PaginaEscogida = ({ titulo, sesion, setSesion }) => {
@@ -39,6 +40,10 @@ const PaginaEscogida = ({ titulo, sesion, setSesion }) => {
     // Empleados
     case "empleados":
       return <h1>{titulo}</h1>;
+
+    // Empleados
+    case "perfil":
+      return <PageUsuarios sesion={sesion} setSesion={setSesion} />;
 
     // Otro
     default:
