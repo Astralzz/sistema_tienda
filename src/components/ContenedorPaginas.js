@@ -7,6 +7,7 @@ import PieDePagina from "../components/PieDePagina";
 import BarraSuperior from "../components/BarraSuperior";
 import PageLogin from "../pages/login/PageLogin";
 import PageUsuarios from "../pages/usuarios/PageUsuarios";
+import PageTablaUsuarios from "../pages/usuarios/PageTablaUsuarios";
 
 // Obtener pagina
 const PaginaEscogida = ({ titulo, sesion, setSesion }) => {
@@ -39,7 +40,7 @@ const PaginaEscogida = ({ titulo, sesion, setSesion }) => {
 
     // Empleados
     case "empleados":
-      return <h1>{titulo}</h1>;
+      return <PageTablaUsuarios titulo={titulo} sesion={sesion} />;
 
     // Empleados
     case "perfil":
