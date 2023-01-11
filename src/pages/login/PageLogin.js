@@ -44,6 +44,7 @@ const PageLogin = ({ setSesion }) => {
 
     //Iniciamos sesion
     setSesion({
+      id: res.id,
       nombre: res.nombre,
       apellidos: res.apellidos,
       telefono: res.telefono,

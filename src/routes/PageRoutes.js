@@ -7,6 +7,7 @@ import PageLogin from "../pages/login/PageLogin";
 const PageRoutes = () => {
   //Sesion
   const [sesion, setSesion] = useState({
+    id: null,
     nombre: null,
     apellidos: null,
     telefono: null,

@@ -1,10 +1,10 @@
 import axios from "axios";
-import { API_URL_USUARIOS } from "./variables";
+import { API_URL_VENTAS } from "./variables";
 
 // Obtener tabla
-async function obtenerTablaUsuarios(desde, asta) {
+async function obtenerTablaVenta(desde, asta) {
   //Ruta
-  const url = API_URL_USUARIOS + `lista/${desde}/${asta}`;
+  const url = API_URL_VENTAS + `lista/${desde}/${asta}`;
 
   //Enviamos
   const res = await axios
@@ -16,7 +16,7 @@ async function obtenerTablaUsuarios(desde, asta) {
     //Error
     .catch(function(er) {
       console.error(
-        `- ERROR AL VALIDAR USUARIO -\n ${er.response.data.error} \n -------------`
+        `- ERROR AL VALIDAR VENTAS -\n ${er.response.data.error} \n -------------`
       );
       return undefined;
     });
@@ -27,7 +27,7 @@ async function obtenerTablaUsuarios(desde, asta) {
 // Verificar key
 async function verificarKeyAdmin(key) {
   //Ruta
-  const url = API_URL_USUARIOS + `validar/key?key=${key}`;
+  const url = API_URL_VENTAS + `validar/key?key=${key}`;
 
   //Enviamos
   const res = await axios
@@ -48,9 +48,9 @@ async function verificarKeyAdmin(key) {
 }
 
 // Crear usuario
-async function crearUsuario(usuario) {
+async function crearVenta(usuario) {
   //Ruta
-  const url = API_URL_USUARIOS + "guardar";
+  const url = API_URL_VENTAS + "guardar";
 
   //Enviamos
   const res = await axios
@@ -71,9 +71,9 @@ async function crearUsuario(usuario) {
 }
 
 // Buscar email
-async function buscarEmailUsuario(email) {
+async function buscarEmailVenta(email) {
   //Ruta
-  const url = API_URL_USUARIOS + `buscar/${email}`;
+  const url = API_URL_VENTAS + `buscar/${email}`;
 
   //Enviamos
   const res = await axios
@@ -94,9 +94,9 @@ async function buscarEmailUsuario(email) {
 }
 
 // Iniciar sesión
-async function iniciarSesionUsuario(usuario) {
+async function iniciarSesionVenta(usuario) {
   //Ruta
-  const url = API_URL_USUARIOS + "validar";
+  const url = API_URL_VENTAS + "validar";
 
   //Enviamos
   const res = await axios
@@ -108,7 +108,7 @@ async function iniciarSesionUsuario(usuario) {
     //Error
     .catch(function(er) {
       console.error(
-        `- ERROR AL VALIDAR USUARIO -\n ${er.response.data.error} \n -------------`
+        `- ERROR AL VALIDAR VENTAS -\n ${er.response.data.error} \n -------------`
       );
       return undefined;
     });
@@ -117,9 +117,9 @@ async function iniciarSesionUsuario(usuario) {
 }
 
 // Obtener usuario
-async function obtenerUsuario(email) {
+async function obtenerVenta(email) {
   //Ruta
-  const url = API_URL_USUARIOS + `obtener/${email}`;
+  const url = API_URL_VENTAS + `obtener/${email}`;
 
   //Enviamos
   const res = await axios
@@ -131,7 +131,7 @@ async function obtenerUsuario(email) {
     //Error
     .catch(function(er) {
       console.error(
-        `- ERROR AL VALIDAR USUARIO -\n ${er.response.data.error} \n -------------`
+        `- ERROR AL VALIDAR VENTAS -\n ${er.response.data.error} \n -------------`
       );
       return undefined;
     });
@@ -140,9 +140,9 @@ async function obtenerUsuario(email) {
 }
 
 // Editar usuario
-async function editarUsuario(datos) {
+async function editarVenta(datos) {
   //Ruta
-  const url = API_URL_USUARIOS + "modificar";
+  const url = API_URL_VENTAS + "modificar";
 
   datos.forEach((dato, key) => {
     console.log(key + ": " + dato);
@@ -168,9 +168,9 @@ async function editarUsuario(datos) {
 }
 
 // buscar lista por nombre
-async function obtenerTablaUsuariosPorNombre(nombre, no = 10) {
+async function obtenerTablaVentaPorNombre(nombre, no = 10) {
   //Ruta
-  const url = API_URL_USUARIOS + `buscar/nombre/${nombre}/${no}`;
+  const url = API_URL_VENTAS + `buscar/nombre/${nombre}/${no}`;
 
   //Enviamos
   const res = await axios
@@ -182,7 +182,7 @@ async function obtenerTablaUsuariosPorNombre(nombre, no = 10) {
     //Error
     .catch(function(er) {
       console.error(
-        `- ERROR AL VALIDAR USUARIO -\n ${er.response.data.error} \n -------------`
+        `- ERROR AL VALIDAR VENTAS -\n ${er.response.data.error} \n -------------`
       );
       return undefined;
     });
@@ -191,9 +191,9 @@ async function obtenerTablaUsuariosPorNombre(nombre, no = 10) {
 }
 
 // Desactivar/activar usuario
-async function cambiarEstadoUsuario(email) {
+async function cambiarEstadoVenta(email) {
   //Ruta
-  const url = API_URL_USUARIOS + `desactivar/${email}`;
+  const url = API_URL_VENTAS + `desactivar/${email}`;
 
   //Enviamos
   const res = await axios
@@ -210,9 +210,9 @@ async function cambiarEstadoUsuario(email) {
 }
 
 // Numero de filas
-async function noDeFilasListaUsuario() {
+async function noDeFilasListaVenta() {
   //Ruta
-  const url = API_URL_USUARIOS + "buscar/no/filas";
+  const url = API_URL_VENTAS + "buscar/no/filas";
 
   //Enviamos
   const res = await axios
@@ -236,13 +236,13 @@ async function noDeFilasListaUsuario() {
 // Exportamos
 export {
   verificarKeyAdmin,
-  crearUsuario,
-  buscarEmailUsuario,
-  iniciarSesionUsuario,
-  obtenerUsuario,
-  editarUsuario,
-  obtenerTablaUsuarios,
-  obtenerTablaUsuariosPorNombre,
-  cambiarEstadoUsuario,
-  noDeFilasListaUsuario,
+  crearVenta,
+  buscarEmailVenta,
+  iniciarSesionVenta,
+  obtenerVenta,
+  editarVenta,
+  obtenerTablaVenta,
+  obtenerTablaVentaPorNombre,
+  cambiarEstadoVenta,
+  noDeFilasListaVenta,
 };

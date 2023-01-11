@@ -17,7 +17,7 @@ const PageTablaUsuarios = ({ titulo, sesion }) => {
   const [errorMensaje, setErrorMensaje] = useState("");
   const [empleadoABuscar, setEmpleadoABuscar] = useState("");
   const [noDePaginas, setNoDePaginas] = useState(1);
-  const [paginaActiva, setPaginaActiva] = useState(1);
+  const [paginaActiva, setPaginaActiva] = useState(0);
   const [empleado, setEmpleado] = useState({
     nombre: null,
     email: null,
@@ -84,16 +84,33 @@ const PageTablaUsuarios = ({ titulo, sesion }) => {
   const obtenerNoDeFilasTabla = async () => {
     const filas = await noDeFilasListaUsuario();
 
-    console.log(filas);
-
-    setNoDePaginas(Math.ceil(filas / paginas.desde + paginas.asta));
+    setNoDePaginas(Math.ceil(filas / 10));
   };
 
   // Pagination
   let items = [];
   for (let i = 1; i <= noDePaginas; i++) {
     items.push(
-      <Pagination.Item key={i} active={i === paginaActiva}>
+      <Pagination.Item
+        className="text-dark"
+        onClick={() => {
+          if (i === 1) {
+            setPaginaActiva(1);
+            setPaginas({
+              desde: 0,
+              asta: 10,
+            });
+          }
+
+          setPaginaActiva(i);
+          setPaginas({
+            desde: 10 * (i - 1),
+            asta: 10 * i,
+          });
+        }}
+        key={i}
+        active={i === paginaActiva}
+      >
         {i}
       </Pagination.Item>
     );
@@ -349,13 +366,9 @@ const PageTablaUsuarios = ({ titulo, sesion }) => {
                   })}
                 </tbody>
               </Table>
+              {/* Pagination */}
               <div className="text-dark">
-                <Pagination
-                  className="pagination-bg-dark"
-                  style={{ color: "#333333" }}
-                >
-                  {items}
-                </Pagination>
+                <Pagination className="pagination-bg-dark">{items}</Pagination>
               </div>
             </Card.Body>
           </Card>

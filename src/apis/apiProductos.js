@@ -1,10 +1,10 @@
 import axios from "axios";
-import { API_URL_USUARIOS } from "./variables";
+import { API_URL_PRODUCTOS } from "./variables";
 
-// Obtener tabla
-async function obtenerTablaUsuarios(desde, asta) {
+// Obtener tabla llllllll
+async function obtenerTablaProductos(desde, asta) {
   //Ruta
-  const url = API_URL_USUARIOS + `lista/${desde}/${asta}`;
+  const url = API_URL_PRODUCTOS + `lista/${desde}/${asta}`;
 
   //Enviamos
   const res = await axios
@@ -16,7 +16,7 @@ async function obtenerTablaUsuarios(desde, asta) {
     //Error
     .catch(function(er) {
       console.error(
-        `- ERROR AL VALIDAR USUARIO -\n ${er.response.data.error} \n -------------`
+        `- ERROR AL VALIDAR PRODUCTOS -\n ${er.response.data.error} \n -------------`
       );
       return undefined;
     });
@@ -27,7 +27,7 @@ async function obtenerTablaUsuarios(desde, asta) {
 // Verificar key
 async function verificarKeyAdmin(key) {
   //Ruta
-  const url = API_URL_USUARIOS + `validar/key?key=${key}`;
+  const url = API_URL_PRODUCTOS + `validar/key?key=${key}`;
 
   //Enviamos
   const res = await axios
@@ -47,14 +47,14 @@ async function verificarKeyAdmin(key) {
   return res;
 }
 
-// Crear usuario
-async function crearUsuario(usuario) {
+// Crear producto lllllllll
+async function crearProducto(producto) {
   //Ruta
-  const url = API_URL_USUARIOS + "guardar";
+  const url = API_URL_PRODUCTOS + "guardar";
 
   //Enviamos
   const res = await axios
-    .post(url, usuario)
+    .post(url, producto)
     //Éxito
     .then(function() {
       return true;
@@ -71,9 +71,9 @@ async function crearUsuario(usuario) {
 }
 
 // Buscar email
-async function buscarEmailUsuario(email) {
+async function buscarEmailProducto(email) {
   //Ruta
-  const url = API_URL_USUARIOS + `buscar/${email}`;
+  const url = API_URL_PRODUCTOS + `buscar/${email}`;
 
   //Enviamos
   const res = await axios
@@ -94,9 +94,9 @@ async function buscarEmailUsuario(email) {
 }
 
 // Iniciar sesión
-async function iniciarSesionUsuario(usuario) {
+async function iniciarSesionProducto(usuario) {
   //Ruta
-  const url = API_URL_USUARIOS + "validar";
+  const url = API_URL_PRODUCTOS + "validar";
 
   //Enviamos
   const res = await axios
@@ -108,7 +108,7 @@ async function iniciarSesionUsuario(usuario) {
     //Error
     .catch(function(er) {
       console.error(
-        `- ERROR AL VALIDAR USUARIO -\n ${er.response.data.error} \n -------------`
+        `- ERROR AL VALIDAR PRODUCTOS -\n ${er.response.data.error} \n -------------`
       );
       return undefined;
     });
@@ -117,9 +117,9 @@ async function iniciarSesionUsuario(usuario) {
 }
 
 // Obtener usuario
-async function obtenerUsuario(email) {
+async function obtenerProducto(email) {
   //Ruta
-  const url = API_URL_USUARIOS + `obtener/${email}`;
+  const url = API_URL_PRODUCTOS + `obtener/${email}`;
 
   //Enviamos
   const res = await axios
@@ -131,7 +131,7 @@ async function obtenerUsuario(email) {
     //Error
     .catch(function(er) {
       console.error(
-        `- ERROR AL VALIDAR USUARIO -\n ${er.response.data.error} \n -------------`
+        `- ERROR AL VALIDAR PRODUCTOS -\n ${er.response.data.error} \n -------------`
       );
       return undefined;
     });
@@ -140,14 +140,9 @@ async function obtenerUsuario(email) {
 }
 
 // Editar usuario
-async function editarUsuario(datos) {
+async function editarProducto(datos) {
   //Ruta
-  const url = API_URL_USUARIOS + "modificar";
-
-  datos.forEach((dato, key) => {
-    console.log(key + ": " + dato);
-  });
-  console.log(datos);
+  const url = API_URL_PRODUCTOS + "modificar";
 
   //Enviamos
   const res = await axios
@@ -167,10 +162,10 @@ async function editarUsuario(datos) {
   return res;
 }
 
-// buscar lista por nombre
-async function obtenerTablaUsuariosPorNombre(nombre, no = 10) {
+// buscar lista por nombre  lllllll
+async function obtenerTablaProductosPorNombre(nombre, no = 10) {
   //Ruta
-  const url = API_URL_USUARIOS + `buscar/nombre/${nombre}/${no}`;
+  const url = API_URL_PRODUCTOS + `buscar/nombre/${nombre}/${no}`;
 
   //Enviamos
   const res = await axios
@@ -182,7 +177,7 @@ async function obtenerTablaUsuariosPorNombre(nombre, no = 10) {
     //Error
     .catch(function(er) {
       console.error(
-        `- ERROR AL VALIDAR USUARIO -\n ${er.response.data.error} \n -------------`
+        `- ERROR AL VALIDAR PRODUCTOS -\n ${er.response.data.error} \n -------------`
       );
       return undefined;
     });
@@ -190,36 +185,60 @@ async function obtenerTablaUsuariosPorNombre(nombre, no = 10) {
   return res;
 }
 
-// Desactivar/activar usuario
-async function cambiarEstadoUsuario(email) {
+// buscar lista por nombre 2 lllllll
+async function obtenerListaProductosPorNombre(nombre, no = 4) {
   //Ruta
-  const url = API_URL_USUARIOS + `desactivar/${email}`;
-
-  //Enviamos
-  const res = await axios
-    .put(url)
-    //Error
-    .catch(function(er) {
-      console.error(
-        `- ERROR AL BUSCAR EMAIL -\n ${er.response.data.error} \n -------------`
-      );
-      return undefined;
-    });
-
-  return res;
-}
-
-// Numero de filas
-async function noDeFilasListaUsuario() {
-  //Ruta
-  const url = API_URL_USUARIOS + "buscar/no/filas";
+  const url = API_URL_PRODUCTOS + `buscar/lista/nombre/${nombre}/${no}`;
 
   //Enviamos
   const res = await axios
     .get(url)
     //Éxito
     .then(function(ex) {
-      console.log(ex.data);
+      return ex.data;
+    })
+    //Error
+    .catch(function(er) {
+      console.error(
+        `- ERROR AL VALIDAR PRODUCTOS -\n ${er.response.data.error} \n -------------`
+      );
+      return undefined;
+    });
+
+  return res;
+}
+
+// Eliminar producto
+async function eliminarProductoDeLaBD(id) {
+  //Ruta
+  const url = API_URL_PRODUCTOS + `eliminar/${id}`;
+
+  console.log(id);
+
+  //Enviamos
+  const res = await axios
+    .delete(url)
+    //Error
+    .catch(function(er) {
+      console.error(
+        `- ERROR AL ELIMINAR PRODUCTO -\n ${er.response.data.error} \n -------------`
+      );
+      return undefined;
+    });
+
+  return res;
+}
+
+// Numero de filas lllllll
+async function noDeFilasListaProducto() {
+  //Ruta
+  const url = API_URL_PRODUCTOS + "buscar/no/filas";
+
+  //Enviamos
+  const res = await axios
+    .get(url)
+    //Éxito
+    .then(function(ex) {
       return ex.data;
     })
     //Error
@@ -236,13 +255,14 @@ async function noDeFilasListaUsuario() {
 // Exportamos
 export {
   verificarKeyAdmin,
-  crearUsuario,
-  buscarEmailUsuario,
-  iniciarSesionUsuario,
-  obtenerUsuario,
-  editarUsuario,
-  obtenerTablaUsuarios,
-  obtenerTablaUsuariosPorNombre,
-  cambiarEstadoUsuario,
-  noDeFilasListaUsuario,
+  crearProducto,
+  buscarEmailProducto,
+  iniciarSesionProducto,
+  obtenerProducto,
+  editarProducto,
+  obtenerTablaProductos,
+  obtenerTablaProductosPorNombre,
+  noDeFilasListaProducto,
+  eliminarProductoDeLaBD,
+  obtenerListaProductosPorNombre,
 };

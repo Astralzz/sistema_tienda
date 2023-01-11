@@ -1,10 +1,10 @@
 import axios from "axios";
-import { API_URL_USUARIOS } from "./variables";
+import { API_URL_CATEGORIAS } from "./variables";
 
-// Obtener tabla
-async function obtenerTablaUsuarios(desde, asta) {
+// Obtener lista de nombre lllll
+async function obtenerListaNombresCategorias() {
   //Ruta
-  const url = API_URL_USUARIOS + `lista/${desde}/${asta}`;
+  const url = API_URL_CATEGORIAS + "lista/nombres";
 
   //Enviamos
   const res = await axios
@@ -16,7 +16,7 @@ async function obtenerTablaUsuarios(desde, asta) {
     //Error
     .catch(function(er) {
       console.error(
-        `- ERROR AL VALIDAR USUARIO -\n ${er.response.data.error} \n -------------`
+        `- ERROR AL VALIDAR CATEGORIAS -\n ${er.response.data.error} \n -------------`
       );
       return undefined;
     });
@@ -27,7 +27,7 @@ async function obtenerTablaUsuarios(desde, asta) {
 // Verificar key
 async function verificarKeyAdmin(key) {
   //Ruta
-  const url = API_URL_USUARIOS + `validar/key?key=${key}`;
+  const url = API_URL_CATEGORIAS + `validar/key?key=${key}`;
 
   //Enviamos
   const res = await axios
@@ -47,14 +47,14 @@ async function verificarKeyAdmin(key) {
   return res;
 }
 
-// Crear usuario
-async function crearUsuario(usuario) {
+// Crear usuario llllllllll
+async function crearCategoria(categoria) {
   //Ruta
-  const url = API_URL_USUARIOS + "guardar";
+  const url = API_URL_CATEGORIAS + "guardar";
 
   //Enviamos
   const res = await axios
-    .post(url, usuario)
+    .post(url, categoria)
     //Éxito
     .then(function() {
       return true;
@@ -71,9 +71,9 @@ async function crearUsuario(usuario) {
 }
 
 // Buscar email
-async function buscarEmailUsuario(email) {
+async function buscarEmailCategoria(email) {
   //Ruta
-  const url = API_URL_USUARIOS + `buscar/${email}`;
+  const url = API_URL_CATEGORIAS + `buscar/${email}`;
 
   //Enviamos
   const res = await axios
@@ -94,9 +94,9 @@ async function buscarEmailUsuario(email) {
 }
 
 // Iniciar sesión
-async function iniciarSesionUsuario(usuario) {
+async function iniciarSesionCategoria(usuario) {
   //Ruta
-  const url = API_URL_USUARIOS + "validar";
+  const url = API_URL_CATEGORIAS + "validar";
 
   //Enviamos
   const res = await axios
@@ -108,7 +108,7 @@ async function iniciarSesionUsuario(usuario) {
     //Error
     .catch(function(er) {
       console.error(
-        `- ERROR AL VALIDAR USUARIO -\n ${er.response.data.error} \n -------------`
+        `- ERROR AL VALIDAR CATEGORIAS -\n ${er.response.data.error} \n -------------`
       );
       return undefined;
     });
@@ -117,9 +117,9 @@ async function iniciarSesionUsuario(usuario) {
 }
 
 // Obtener usuario
-async function obtenerUsuario(email) {
+async function obtenerCategoria(email) {
   //Ruta
-  const url = API_URL_USUARIOS + `obtener/${email}`;
+  const url = API_URL_CATEGORIAS + `obtener/${email}`;
 
   //Enviamos
   const res = await axios
@@ -131,7 +131,7 @@ async function obtenerUsuario(email) {
     //Error
     .catch(function(er) {
       console.error(
-        `- ERROR AL VALIDAR USUARIO -\n ${er.response.data.error} \n -------------`
+        `- ERROR AL VALIDAR CATEGORIAS -\n ${er.response.data.error} \n -------------`
       );
       return undefined;
     });
@@ -140,9 +140,9 @@ async function obtenerUsuario(email) {
 }
 
 // Editar usuario
-async function editarUsuario(datos) {
+async function editarCategoria(datos) {
   //Ruta
-  const url = API_URL_USUARIOS + "modificar";
+  const url = API_URL_CATEGORIAS + "modificar";
 
   datos.forEach((dato, key) => {
     console.log(key + ": " + dato);
@@ -168,9 +168,9 @@ async function editarUsuario(datos) {
 }
 
 // buscar lista por nombre
-async function obtenerTablaUsuariosPorNombre(nombre, no = 10) {
+async function obtenerTablaCategoriasPorNombre(nombre, no = 10) {
   //Ruta
-  const url = API_URL_USUARIOS + `buscar/nombre/${nombre}/${no}`;
+  const url = API_URL_CATEGORIAS + `buscar/nombre/${nombre}/${no}`;
 
   //Enviamos
   const res = await axios
@@ -182,7 +182,7 @@ async function obtenerTablaUsuariosPorNombre(nombre, no = 10) {
     //Error
     .catch(function(er) {
       console.error(
-        `- ERROR AL VALIDAR USUARIO -\n ${er.response.data.error} \n -------------`
+        `- ERROR AL VALIDAR CATEGORIAS -\n ${er.response.data.error} \n -------------`
       );
       return undefined;
     });
@@ -191,9 +191,9 @@ async function obtenerTablaUsuariosPorNombre(nombre, no = 10) {
 }
 
 // Desactivar/activar usuario
-async function cambiarEstadoUsuario(email) {
+async function cambiarEstadoCategoria(email) {
   //Ruta
-  const url = API_URL_USUARIOS + `desactivar/${email}`;
+  const url = API_URL_CATEGORIAS + `desactivar/${email}`;
 
   //Enviamos
   const res = await axios
@@ -210,9 +210,9 @@ async function cambiarEstadoUsuario(email) {
 }
 
 // Numero de filas
-async function noDeFilasListaUsuario() {
+async function noDeFilasListaCategoria() {
   //Ruta
-  const url = API_URL_USUARIOS + "buscar/no/filas";
+  const url = API_URL_CATEGORIAS + "buscar/no/filas";
 
   //Enviamos
   const res = await axios
@@ -236,13 +236,13 @@ async function noDeFilasListaUsuario() {
 // Exportamos
 export {
   verificarKeyAdmin,
-  crearUsuario,
-  buscarEmailUsuario,
-  iniciarSesionUsuario,
-  obtenerUsuario,
-  editarUsuario,
-  obtenerTablaUsuarios,
-  obtenerTablaUsuariosPorNombre,
-  cambiarEstadoUsuario,
-  noDeFilasListaUsuario,
+  crearCategoria,
+  buscarEmailCategoria,
+  iniciarSesionCategoria,
+  obtenerCategoria,
+  editarCategoria,
+  obtenerListaNombresCategorias,
+  obtenerTablaCategoriasPorNombre,
+  cambiarEstadoCategoria,
+  noDeFilasListaCategoria,
 };

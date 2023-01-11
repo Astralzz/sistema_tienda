@@ -8,6 +8,8 @@ import BarraSuperior from "../components/BarraSuperior";
 import PageLogin from "../pages/login/PageLogin";
 import PageUsuarios from "../pages/usuarios/PageUsuarios";
 import PageTablaUsuarios from "../pages/usuarios/PageTablaUsuarios";
+import PageTablaProductos from "../pages/productos/PageTablaProductos";
+import PageHome from "../pages/home/PageHome";
 
 // Obtener pagina
 const PaginaEscogida = ({ titulo, sesion, setSesion }) => {
@@ -20,11 +22,11 @@ const PaginaEscogida = ({ titulo, sesion, setSesion }) => {
   switch (titulo) {
     // Inicio
     case "inicio":
-      return <h1>{titulo}</h1>;
+      return <PageHome />;
 
     // Articulos
     case "articulos":
-      return <h1>{titulo}</h1>;
+      return <PageTablaProductos titulo={titulo} sesion={sesion} />;
 
     // Clientes
     case "clientes":
@@ -36,7 +38,7 @@ const PaginaEscogida = ({ titulo, sesion, setSesion }) => {
 
     // Ventas
     case "ventas":
-      return <PageVentas />;
+      return <PageVentas titulo={titulo} sesion={sesion} />;
 
     // Empleados
     case "empleados":

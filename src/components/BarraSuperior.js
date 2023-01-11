@@ -28,9 +28,9 @@ class enlace {
 const BarraSuperior = ({ titulo, sesion, setSesion }) => {
   // Enlaces
   const enlaces = [
-    new enlace("Articulos", "/articulos", ListTask),
-    new enlace("Proveedores", "/proveedores", Box2Fill),
+    // new enlace("Proveedores", "/proveedores", Box2Fill),
     new enlace("Ventas", "/ventas", CartFill),
+    new enlace("Articulos", "/articulos", ListTask),
     new enlace("Empleados", "/empleados", PersonVcardFill, !sesion.isGerente),
   ];
 
