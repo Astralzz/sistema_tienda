@@ -10,6 +10,7 @@ import PageUsuarios from "../pages/usuarios/PageUsuarios";
 import PageTablaUsuarios from "../pages/usuarios/PageTablaUsuarios";
 import PageTablaProductos from "../pages/productos/PageTablaProductos";
 import PageHome from "../pages/home/PageHome";
+import PageProveedores from "../pages/proveedores/PageProveedores";
 
 // Obtener pagina
 const PaginaEscogida = ({ titulo, sesion, setSesion }) => {
@@ -28,13 +29,9 @@ const PaginaEscogida = ({ titulo, sesion, setSesion }) => {
     case "articulos":
       return <PageTablaProductos titulo={titulo} sesion={sesion} />;
 
-    // Clientes
-    case "clientes":
-      return <h1>{titulo}</h1>;
-
     // Proveedores
     case "proveedores":
-      return <h1>{titulo}</h1>;
+      return <PageProveedores titulo={titulo} sesion={sesion} />;
 
     // Ventas
     case "ventas":
