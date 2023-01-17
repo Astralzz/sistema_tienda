@@ -13,7 +13,7 @@ import { crearCategoria } from "../../apis/apiCategorias";
 import { crearProveedor } from "../../apis/apiProveedores";
 
 //Ventas
-const PageRegistroProveedor = ({ sesion }) => {
+const PageRegistroProveedor = ({ sesion, obtenerDatos }) => {
   //Formulario
   const refFormularioProveedor = useRef(null);
 
@@ -142,6 +142,7 @@ const PageRegistroProveedor = ({ sesion }) => {
         ...validaciones,
         nombre: false,
       });
+      obtenerDatos();
       return;
     }
 

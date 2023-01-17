@@ -336,7 +336,7 @@ const ModalRegistroProducto = ({ estadoModal, cerrarModal }) => {
           </Button>
           {/* Boton Aceptar */}
           <Button variant="dark" type="submit" disabled={!validarDatos()}>
-            Registrar usuario
+            Registrar pedido
           </Button>
         </Modal.Footer>
       </Form>

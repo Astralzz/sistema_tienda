@@ -16,7 +16,14 @@ import {
   obtenerTablaProductosPorNombre,
   noDeFilasListaProducto,
 } from "../../apis/apiProductos";
-import { EyeFill, BoxFill, CurrencyDollar } from "react-bootstrap-icons";
+import {
+  EyeFill,
+  BoxFill,
+  CurrencyDollar,
+  SortNumericUp,
+  ListColumns,
+  PencilFill,
+} from "react-bootstrap-icons";
 import { API_URL } from "../../apis/variables";
 import Swal from "sweetalert2";
 import PageRegistroProveedor from "./PageRegistroProveedor";
@@ -27,6 +34,13 @@ import {
   obtenerTablaProveedores,
 } from "../../apis/apiProveedores";
 import PageRegistroPedidos from "./PageRegistroPedidos";
+import {
+  eliminarPedidosDeLaBD,
+  noDeFilasListaPedido,
+  obtenerTablaPedidos,
+  ponerPedidoComoCompletado,
+} from "../../apis/apiPedidos";
+import TablaPedidos from "./TablaPedidos";
 
 // Tabla de usuarios
 const PageProveedores = ({ titulo, sesion }) => {
@@ -36,9 +50,12 @@ const PageProveedores = ({ titulo, sesion }) => {
   const abrirModal = () => isEstadoModal(true);
   // Tabla
   const [tablaProveedores, setTablaProveedores] = useState([]);
+  const [tablaPedidos, setTablaPedidos] = useState([]);
   const [errorMensaje, setErrorMensaje] = useState("");
   const [noDePaginasProveedores, setNoDePaginasProveedores] = useState(1);
+  const [noDePaginasPedidos, setNoDePaginasPedidos] = useState(1);
   const [paginaActivaProveedores, setPaginaActivaProveedores] = useState(0);
+  const [paginaActivaPedidos, setPaginaActivaPedidos] = useState(0);
   const [proveedor, setProveedor] = useState({
     id: null,
     nombre: null,
@@ -47,9 +64,26 @@ const PageProveedores = ({ titulo, sesion }) => {
     direccion: null,
     empresa: null,
   });
+  const [pedido, setPedido] = useState({
+    id: null,
+    fecha: null,
+    id_proveedor: null,
+    id_usuario: null,
+    estado: null,
+    total: null,
+    proveedor: null,
+    usuario: null,
+    detalles: [],
+  });
+  const [detallePedido, setDetallePedido] = useState({
+    id_producto: null,
+    cantidad: null,
+  });
   const [paginas, setPaginas] = useState({
     desdeProveedor: 0,
     astaProveedor: 10,
+    desdePedido: 0,
+    astaPedido: 10,
   });
 
   //Obtener datos
@@ -60,8 +94,13 @@ const PageProveedores = ({ titulo, sesion }) => {
       paginas.astaProveedor
     );
 
+    const res2 = await obtenerTablaPedidos(
+      paginas.desdeProveedor,
+      paginas.astaProveedor
+    );
+
     // Error
-    if (res == undefined) {
+    if (res === undefined || res2 === undefined) {
       //Damos respuesta
       setErrorMensaje("Error, No se obtuvieron los datos");
       return;
@@ -69,6 +108,7 @@ const PageProveedores = ({ titulo, sesion }) => {
 
     //Éxito
     setTablaProveedores(res);
+    setTablaPedidos(res2);
     setErrorMensaje("");
     await obtenerNoDeFilasTabla();
   };
@@ -76,11 +116,13 @@ const PageProveedores = ({ titulo, sesion }) => {
   //Obtener no de filas
   const obtenerNoDeFilasTabla = async () => {
     const filas = await noDeFilasListaProveedor();
+    const filas2 = await noDeFilasListaPedido();
 
     setNoDePaginasProveedores(Math.ceil(filas / 10));
+    setNoDePaginasPedidos(Math.ceil(filas2 / 10));
   };
 
-  // Pagination
+  // Pagination de proveedores
   let itemsProveedor = [];
   for (let i = 1; i <= noDePaginasProveedores; i++) {
     itemsProveedor.push(
@@ -90,6 +132,7 @@ const PageProveedores = ({ titulo, sesion }) => {
           if (i === 1) {
             setPaginaActivaProveedores(1);
             setPaginas({
+              ...paginas,
               desdeProveedor: 0,
               astaProveedor: 10,
             });
@@ -97,6 +140,7 @@ const PageProveedores = ({ titulo, sesion }) => {
 
           setPaginaActivaProveedores(i);
           setPaginas({
+            ...paginas,
             desdeProveedor: 10 * (i - 1),
             astaProveedor: 10 * i,
           });
@@ -109,7 +153,38 @@ const PageProveedores = ({ titulo, sesion }) => {
     );
   }
 
-  // Desactivar producto
+  // Pagination de pedidos
+  let itemsPedido = [];
+  for (let i = 1; i <= noDePaginasPedidos; i++) {
+    itemsPedido.push(
+      <Pagination.Item
+        className="text-dark"
+        onClick={() => {
+          if (i === 1) {
+            setPaginaActivaPedidos(1);
+            setPaginas({
+              ...paginas,
+              desdePedido: 0,
+              astaPedido: 10,
+            });
+          }
+
+          setPaginaActivaPedidos(i);
+          setPaginas({
+            ...paginas,
+            desdePedido: 10 * (i - 1),
+            astaPedido: 10 * i,
+          });
+        }}
+        key={i}
+        active={i === paginaActivaPedidos}
+      >
+        {i}
+      </Pagination.Item>
+    );
+  }
+
+  // eliminar producto
   const eliminarProveedor = (id) => {
     Swal.fire({
       title: `Seguro que deseas eliminar a ${proveedor.nombre}`,
@@ -127,7 +202,25 @@ const PageProveedores = ({ titulo, sesion }) => {
     });
   };
 
-  // Desactivar
+  // eliminar producto
+  const eliminarPedido = (id) => {
+    Swal.fire({
+      title: `Seguro que deseas eliminar este pedido?`,
+      text: `los registros de este pedido se eliminaran para siempre!`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: `si, eliminar pedido`,
+      cancelButtonText: "cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        eliminar2(id);
+      }
+    });
+  };
+
+  // eliminar
   const eliminar = async (id) => {
     //Verificamos
     const res = await eliminarProveedorDeLaBD(id);
@@ -156,6 +249,88 @@ const PageProveedores = ({ titulo, sesion }) => {
     });
     obtenerDatos();
   };
+  const eliminar2 = async (id) => {
+    //Verificamos
+    const res = await eliminarPedidosDeLaBD(id);
+
+    // Error
+    if (res == undefined) {
+      //Damos respuesta
+      Swal.fire(
+        "Error!",
+        "No se elimino el pedido, intenta mas tarde",
+        "error"
+      );
+      return;
+    }
+
+    Swal.fire("Éxito!", `Pedido eliminado correctamente.`, "success");
+
+    //Éxito
+    setPedido({
+      id: null,
+      fecha: null,
+      id_proveedor: null,
+      id_usuario: null,
+      estado: null,
+      total: null,
+      proveedor: null,
+      usuario: null,
+      detalles: [],
+    });
+    obtenerDatos();
+  };
+
+  // eliminar producto
+  const completarPedido = (id, id_producto, cantidad) => {
+    Swal.fire({
+      title: `Seguro que deseas completar este pedido?`,
+      text: `Esta acción no se podrá cambiar!`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: `si, completar pedido`,
+      cancelButtonText: "cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        completar(id, id_producto, cantidad);
+      }
+    });
+  };
+
+  // completar
+  const completar = async (id, id_producto, cantidad) => {
+    //Verificamos
+    const res = await ponerPedidoComoCompletado(id, id_producto, cantidad);
+
+    // Error
+    if (res == undefined) {
+      //Damos respuesta
+      Swal.fire(
+        "Error!",
+        "No se completo el pedido, intenta mas tarde",
+        "error"
+      );
+      return;
+    }
+
+    Swal.fire("Éxito!", `Pedido completado correctamente.`, "success");
+
+    //Éxito
+    setPedido({
+      id: null,
+      fecha: null,
+      id_proveedor: null,
+      id_usuario: null,
+      estado: null,
+      total: null,
+      proveedor: null,
+      usuario: null,
+      detalles: [],
+    });
+    obtenerDatos();
+  };
 
   useEffect(() => {
     if (sesion.isSesionIniciada) {
@@ -169,6 +344,12 @@ const PageProveedores = ({ titulo, sesion }) => {
       setErrorMensaje("");
     }
   }, [paginas]);
+  useEffect(() => {
+    if (sesion.isSesionIniciada) {
+      obtenerDatos();
+      setErrorMensaje("");
+    }
+  }, [estadoModal]);
 
   // Limpiar
   const limpiar = () => {
@@ -183,6 +364,154 @@ const PageProveedores = ({ titulo, sesion }) => {
         <div className="row gutters-sm">
           {/* PARTE DERECHA */}
           <div className="col-md-4 mb-3">
+            {/* Parte del pedido */}
+            <Card className="card mt-3">
+              {/* Tarjeta */}
+              <div className="d-flex flex-column align-items-center text-center">
+                <br />
+                <div className="mt-3">
+                  {/* Nombre */}
+                  <h4>
+                    {pedido.id !== null ? pedido.fecha : "Selecciona un pedido"}
+                  </h4>
+                  {/* email */}
+                  <p className="text-secondary mb-1">
+                    {pedido.estado !== null ? pedido.estado : "......"}
+                  </p>
+                  {/* categoria */}
+                  <p className="text-muted font-size-sm">
+                    {pedido.total !== null ? pedido.total : "......"}
+                  </p>
+                  {/* empresa */}
+                  <p className="text-secondary mb-1">
+                    {pedido.proveedor !== null ? pedido.proveedor : "......"}
+                  </p>
+                  {/* direccion */}
+                  <p className="text-muted font-size-sm">
+                    {pedido.usuario !== null ? pedido.usuario : "......"}
+                  </p>
+
+                  {/* Detalles */}
+                  <div className="text-muted font-size-sm">
+                    {pedido.detalles.map((detalle, i) => {
+                      return (
+                        <ul key={i} className="list-group list-group-flush">
+                          {/* producto */}
+                          <li className="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                            <h6 className="mb-0">
+                              <BoxFill
+                                width={24}
+                                height={24}
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke={"currentColor"}
+                                strokeWidth={"2"}
+                                strokeLinecap={"round"}
+                                strokeLinejoin={"round"}
+                                className="feather feather-globe mr-2 icon-inline"
+                              >
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                              </BoxFill>
+                            </h6>
+                            <span className="text-secondary">
+                              {detalle.producto.nombre !== null
+                                ? detalle.producto.nombre
+                                : "......"}
+                            </span>
+                          </li>
+                          {/* cantidad */}
+                          <li className="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                            <h6 className="mb-0">
+                              <ListColumns
+                                width={24}
+                                height={24}
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke={"currentColor"}
+                                strokeWidth={"2"}
+                                strokeLinecap={"round"}
+                                strokeLinejoin={"round"}
+                                className="feather feather-globe mr-2 icon-inline"
+                              >
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                              </ListColumns>
+                            </h6>
+                            <span className="text-secondary">
+                              {detalle.cantidad !== null
+                                ? detalle.cantidad + " pz"
+                                : "......"}
+                            </span>
+                          </li>
+                          {/* descripcion */}
+                          <li className="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                            <h6 className="mb-0">
+                              <PencilFill
+                                width={24}
+                                height={24}
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke={"currentColor"}
+                                strokeWidth={"2"}
+                                strokeLinecap={"round"}
+                                strokeLinejoin={"round"}
+                                className="feather feather-globe mr-2 icon-inline"
+                              >
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                              </PencilFill>
+                            </h6>
+                            <span className="text-secondary">
+                              {detalle.descripcion !== null
+                                ? detalle.descripcion
+                                : "......"}
+                            </span>
+                          </li>
+                        </ul>
+                      );
+                    })}
+                  </div>
+
+                  {/* Eliminar y completar */}
+                  <p className="text-muted font-size-sm">
+                    {/* Eliminar */}
+                    <Button
+                      variant="danger"
+                      disabled={
+                        pedido.id === null ||
+                        !Boolean(sesion.isGerente) ||
+                        pedido.estado !== "completado"
+                      }
+                      onClick={() => eliminarPedido(pedido.id)}
+                    >
+                      Eliminar pedido
+                    </Button>
+                    {/* Completar */}
+                    <Button
+                      variant="success"
+                      disabled={
+                        pedido.id === null || pedido.estado === "completado"
+                      }
+                      onClick={() =>
+                        completarPedido(
+                          pedido.id,
+                          detallePedido.id_producto,
+                          detallePedido.cantidad
+                        )
+                      }
+                    >
+                      {pedido.estado === "completado"
+                        ? "completado"
+                        : "marcar como completado"}
+                    </Button>
+                  </p>
+                </div>
+              </div>
+            </Card>
             {/* Parte de proveedor */}
             <Card className="card mt-3">
               {/* Tarjeta */}
@@ -241,7 +570,10 @@ const PageProveedores = ({ titulo, sesion }) => {
               </div>
             </Card>
             {/* Parte de registro de proveedor */}
-            <PageRegistroProveedor sesion={sesion} />
+            <PageRegistroProveedor
+              sesion={sesion}
+              obtenerDatos={obtenerDatos}
+            />
           </div>
 
           {/* PARTE DE LA TABLA */}
@@ -266,14 +598,15 @@ const PageProveedores = ({ titulo, sesion }) => {
                 </Tab>
                 {/* Tabla de Pedidos */}
                 <Tab eventKey={"Pedidos"} title="Pedidos">
-                  <TablaProveedores
-                    tablaProveedores={tablaProveedores}
-                    itemsProveedor={itemsProveedor}
+                  <TablaPedidos
+                    tablaPedidos={tablaPedidos}
+                    itemsPedido={itemsPedido}
                     obtenerDatos={obtenerDatos}
                     setErrorMensaje={setErrorMensaje}
-                    setTablaProveedores={setTablaProveedores}
+                    setTablaPedidos={setTablaPedidos}
                     errorMensaje={errorMensaje}
-                    setProveedor={setProveedor}
+                    setPedido={setPedido}
+                    setDetallePedido={setDetallePedido}
                   />
                 </Tab>
               </Tabs>

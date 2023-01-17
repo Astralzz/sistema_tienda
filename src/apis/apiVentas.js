@@ -1,10 +1,10 @@
 import axios from "axios";
 import { API_URL_VENTAS } from "./variables";
 
-// Obtener tabla
-async function obtenerTablaVenta(desde, asta) {
+// Obtener tabla de mis ventas
+async function obtenerTablaMisVentas(id, desde, asta) {
   //Ruta
-  const url = API_URL_VENTAS + `lista/${desde}/${asta}`;
+  const url = API_URL_VENTAS + `mis_ventas/${id}/${desde}/${asta}`;
 
   //Enviamos
   const res = await axios
@@ -24,22 +24,18 @@ async function obtenerTablaVenta(desde, asta) {
   return res;
 }
 
-// Verificar key
-async function verificarKeyAdmin(key) {
+// Eliminar venta
+async function eliminarVentasDeLaBD(id) {
   //Ruta
-  const url = API_URL_VENTAS + `validar/key?key=${key}`;
+  const url = API_URL_VENTAS + `eliminar/${id}`;
 
   //Enviamos
   const res = await axios
-    .get(url)
-    //Éxito
-    .then(function(ex) {
-      return ex.data.estado;
-    })
+    .delete(url)
     //Error
     .catch(function(er) {
       console.error(
-        `- ERROR AL VERIFICAR -\n ${er.response.data.error} \n -------------`
+        `- ERROR AL ELIMINAR VENTA -\n ${er.response.data.error} \n -------------`
       );
       return undefined;
     });
@@ -47,7 +43,7 @@ async function verificarKeyAdmin(key) {
   return res;
 }
 
-// Crear usuario
+// Crear venta
 async function crearVenta(usuario) {
   //Ruta
   const url = API_URL_VENTAS + "guardar";
@@ -70,56 +66,10 @@ async function crearVenta(usuario) {
   return res;
 }
 
-// Buscar email
-async function buscarEmailVenta(email) {
+// buscar lista por fecha
+async function obtenerTablaVentasPorFecha(fecha, no = 10) {
   //Ruta
-  const url = API_URL_VENTAS + `buscar/${email}`;
-
-  //Enviamos
-  const res = await axios
-    .get(url)
-    //Éxito
-    .then(function(ex) {
-      return ex.data.estado;
-    })
-    //Error
-    .catch(function(er) {
-      console.error(
-        `- ERROR AL BUSCAR EMAIL -\n ${er.response.data.error} \n -------------`
-      );
-      return undefined;
-    });
-
-  return res;
-}
-
-// Iniciar sesión
-async function iniciarSesionVenta(usuario) {
-  //Ruta
-  const url = API_URL_VENTAS + "validar";
-
-  //Enviamos
-  const res = await axios
-    .post(url, usuario)
-    //Éxito
-    .then(function(ex) {
-      return ex.data.estado;
-    })
-    //Error
-    .catch(function(er) {
-      console.error(
-        `- ERROR AL VALIDAR VENTAS -\n ${er.response.data.error} \n -------------`
-      );
-      return undefined;
-    });
-
-  return res;
-}
-
-// Obtener usuario
-async function obtenerVenta(email) {
-  //Ruta
-  const url = API_URL_VENTAS + `obtener/${email}`;
+  const url = API_URL_VENTAS + `buscar/fecha/${fecha}/${no}`;
 
   //Enviamos
   const res = await axios
@@ -131,7 +81,7 @@ async function obtenerVenta(email) {
     //Error
     .catch(function(er) {
       console.error(
-        `- ERROR AL VALIDAR VENTAS -\n ${er.response.data.error} \n -------------`
+        `- ERROR AL VALIDAR PEDIDO -\n ${er.response.data.error} \n -------------`
       );
       return undefined;
     });
@@ -139,38 +89,10 @@ async function obtenerVenta(email) {
   return res;
 }
 
-// Editar usuario
-async function editarVenta(datos) {
+// Obtener tabla
+async function obtenerTablaVentas(desde, asta) {
   //Ruta
-  const url = API_URL_VENTAS + "modificar";
-
-  datos.forEach((dato, key) => {
-    console.log(key + ": " + dato);
-  });
-  console.log(datos);
-
-  //Enviamos
-  const res = await axios
-    .put(url, datos)
-    //Éxito
-    .then(function() {
-      return true;
-    })
-    //Error
-    .catch(function(er) {
-      console.error(
-        `- ERROR AL EDITAR -\n ${er.response.data.error} \n -------------`
-      );
-      return false;
-    });
-
-  return res;
-}
-
-// buscar lista por nombre
-async function obtenerTablaVentaPorNombre(nombre, no = 10) {
-  //Ruta
-  const url = API_URL_VENTAS + `buscar/nombre/${nombre}/${no}`;
+  const url = API_URL_VENTAS + `lista/${desde}/${asta}`;
 
   //Enviamos
   const res = await axios
@@ -182,52 +104,9 @@ async function obtenerTablaVentaPorNombre(nombre, no = 10) {
     //Error
     .catch(function(er) {
       console.error(
-        `- ERROR AL VALIDAR VENTAS -\n ${er.response.data.error} \n -------------`
+        `- ERROR AL VALIDAR PEDIDO -\n ${er.response.data.error} \n -------------`
       );
       return undefined;
-    });
-
-  return res;
-}
-
-// Desactivar/activar usuario
-async function cambiarEstadoVenta(email) {
-  //Ruta
-  const url = API_URL_VENTAS + `desactivar/${email}`;
-
-  //Enviamos
-  const res = await axios
-    .put(url)
-    //Error
-    .catch(function(er) {
-      console.error(
-        `- ERROR AL BUSCAR EMAIL -\n ${er.response.data.error} \n -------------`
-      );
-      return undefined;
-    });
-
-  return res;
-}
-
-// Numero de filas
-async function noDeFilasListaVenta() {
-  //Ruta
-  const url = API_URL_VENTAS + "buscar/no/filas";
-
-  //Enviamos
-  const res = await axios
-    .get(url)
-    //Éxito
-    .then(function(ex) {
-      console.log(ex.data);
-      return ex.data;
-    })
-    //Error
-    .catch(function(er) {
-      console.error(
-        `- ERROR AL BUSCAR FILAS -\n ${er.response.data.error} \n -------------`
-      );
-      return 0;
     });
 
   return res;
@@ -235,14 +114,9 @@ async function noDeFilasListaVenta() {
 
 // Exportamos
 export {
-  verificarKeyAdmin,
+  obtenerTablaMisVentas,
+  eliminarVentasDeLaBD,
   crearVenta,
-  buscarEmailVenta,
-  iniciarSesionVenta,
-  obtenerVenta,
-  editarVenta,
-  obtenerTablaVenta,
-  obtenerTablaVentaPorNombre,
-  cambiarEstadoVenta,
-  noDeFilasListaVenta,
+  obtenerTablaVentasPorFecha,
+  obtenerTablaVentas,
 };

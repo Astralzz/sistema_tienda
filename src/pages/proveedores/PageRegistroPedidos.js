@@ -93,7 +93,7 @@ const PageRegistroPedidos = ({
     Swal.fire({
       icon: "error",
       title: "Error...",
-      text: "No se creo el producto!",
+      text: "No se creo el pedido!",
     });
   };
 
@@ -348,7 +348,7 @@ const PageRegistroPedidos = ({
           </Button>
           {/* Boton Aceptar */}
           <Button variant="dark" type="submit" disabled={!validarDatos()}>
-            Registrar usuario
+            Realizar pedido
           </Button>
         </Modal.Footer>
       </Form>

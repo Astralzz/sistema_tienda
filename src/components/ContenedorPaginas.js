@@ -23,7 +23,7 @@ const PaginaEscogida = ({ titulo, sesion, setSesion }) => {
   switch (titulo) {
     // Inicio
     case "inicio":
-      return <PageHome />;
+      return <PageHome sesion={sesion} />;
 
     // Articulos
     case "articulos":

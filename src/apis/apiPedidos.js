@@ -171,10 +171,10 @@ async function editarPedido(datos) {
   return res;
 }
 
-// buscar lista por nombre
+// buscar lista por fecha
 async function obtenerTablaPedidosPorNombre(nombre, no = 10) {
   //Ruta
-  const url = API_URL_PEDIDOS + `buscar/nombre/${nombre}/${no}`;
+  const url = API_URL_PEDIDOS + `buscar/fecha/${nombre}/${no}`;
 
   //Enviamos
   const res = await axios
@@ -237,6 +237,44 @@ async function noDeFilasListaPedido() {
   return res;
 }
 
+// Eliminar producto
+async function eliminarPedidosDeLaBD(id) {
+  //Ruta
+  const url = API_URL_PEDIDOS + `eliminar/${id}`;
+
+  //Enviamos
+  const res = await axios
+    .delete(url)
+    //Error
+    .catch(function(er) {
+      console.error(
+        `- ERROR AL ELIMINAR PEDIDO -\n ${er.response.data.error} \n -------------`
+      );
+      return undefined;
+    });
+
+  return res;
+}
+
+// Eliminar producto
+async function ponerPedidoComoCompletado(id, id_producto, cantidad) {
+  //Ruta
+  const url = API_URL_PEDIDOS + `completar/${id}/${id_producto}/${cantidad}`;
+
+  //Enviamos
+  const res = await axios
+    .post(url)
+    //Error
+    .catch(function(er) {
+      console.error(
+        `- ERROR AL COMPLETAR PEDIDO -\n ${er.response.data.error} \n -------------`
+      );
+      return undefined;
+    });
+
+  return res;
+}
+
 // Exportamos
 export {
   verificarKeyAdmin,
@@ -249,4 +287,6 @@ export {
   obtenerTablaPedidosPorNombre,
   cambiarEstadoPedido,
   noDeFilasListaPedido,
+  eliminarPedidosDeLaBD,
+  ponerPedidoComoCompletado,
 };
